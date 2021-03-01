@@ -484,7 +484,7 @@ CLIENT.on("voiceStateUpdate", async (oldMember, newMember) => {
     if (message_status.dan === true && newMember.id === "184787999710511106") {
       await currChannel.join().then((connection) => {
         connection
-          .play(path.join(__dirname, "/media/dan_intro.mp3"))
+          .play(path.join(__dirname, "\\media\\dan_intro.mp3"))
           .on("finish", () => {
             currChannel.leave();
           });
