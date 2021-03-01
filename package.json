@@ -18,8 +18,8 @@
   },
   "homepage": "https://github.com/DravenMainBTW/DiscordBot#readme",
   "dependencies": {
-    "@discordjs/opus": "^0.3.2",
-    "discord.js": "^12.3.1",
-    "mongodb": "^3.6.0"
+    "@discordjs/opus": "^0.4.0",
+    "discord.js": "^12.5.1",
+    "mongodb": "^3.6.4"
   }
 }
