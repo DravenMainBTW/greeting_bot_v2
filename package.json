@@ -1,0 +1,25 @@
+{
+  "name": "discordbot",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Discord bot written in JS.",
+  "main": "./bot/index.js",
+  "scripts": {
+    "start": "node ./bot/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DravenMainBTW/DiscordBot.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/DravenMainBTW/DiscordBot/issues"
+  },
+  "homepage": "https://github.com/DravenMainBTW/DiscordBot#readme",
+  "dependencies": {
+    "@discordjs/opus": "^0.3.2",
+    "discord.js": "^12.3.1",
+    "mongodb": "^3.6.0"
+  }
+}
