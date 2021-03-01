@@ -9,7 +9,7 @@ import API from "./api.js";
 // Defining Required Variables
 const { MongoClient } = mongodb;
 const CLIENT = new Discord.Client();
-const __dirname = path.resolve();
+const __dirname = path.join(path.resolve(), "./bot");
 let message_status = {};
 
 // API Functions
@@ -65,9 +65,6 @@ CLIENT.on("error", (error) => {
 // Toggle Join Message
 CLIENT.on("message", (message) => {
   let MESSAGE = message.content.toLowerCase();
-
-  if (true) {
-  }
 
   // Other Commands
   if (MESSAGE === ".help") {
@@ -326,6 +323,7 @@ CLIENT.on("message", (message) => {
 });
 
 // Voice Connection
+// ADD PLAY AUDIO FUNCTION
 CLIENT.on("voiceStateUpdate", async (oldMember, newMember) => {
   if (oldMember.channelID === null || oldMember.channelID === undefined) {
     let currChannel = CLIENT.channels.cache.get(newMember.channelID);
@@ -484,7 +482,7 @@ CLIENT.on("voiceStateUpdate", async (oldMember, newMember) => {
     if (message_status.dan === true && newMember.id === "184787999710511106") {
       await currChannel.join().then((connection) => {
         connection
-          .play(path.join(__dirname, "\\media\\dan_intro.mp3"))
+          .play(path.join(__dirname, "./media/dan_intro.mp3"))
           .on("finish", () => {
             currChannel.leave();
           });
