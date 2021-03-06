@@ -24,6 +24,7 @@ const fetchDocuments = () =>
         API.findDocuments(db, (docs) => {
           console.log("=== Documents Fetched ===");
           message_status = docs;
+
           client.close();
         });
       } else {
@@ -86,244 +87,36 @@ CLIENT.on("message", (message) => {
   }
 
   // Setting User Intro On Or Off
-  // UPDATE TO MAP
-  if (MESSAGE === ".michael") {
-    message_status.michael = !message_status.michael;
+  if (
+    Object.keys(message_status)
+      .slice(1)
+      .find((item) => `.${item}` === MESSAGE) !== undefined
+  ) {
+    MESSAGE = MESSAGE.substring(1);
+
+    message_status = {
+      ...message_status,
+      [MESSAGE]: !message_status[MESSAGE],
+    };
 
     updateDocuments();
 
     message
       .reply(
-        `Michael Greeting: ${
-          message_status.michael === true ? "Enabled" : "Disabled"
+        `${
+          MESSAGE.slice(0, 1).toUpperCase() + MESSAGE.substring(1)
+        } Greeting: ${
+          message_status[MESSAGE] === true ? "Enabled" : "Disabled"
         }`
       )
       .then(() =>
-        message
-          .react("🤔")
-          .then(() =>
-            message.react(message_status.michael === true ? "✅" : "❌")
-          )
-      );
-  }
-
-  if (MESSAGE === ".adam") {
-    message_status.adam = !message_status.adam;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Adam Greeting: ${
-          message_status.adam === true ? "Enabled" : "Disabled"
-        }`
-      )
-      .then(() =>
-        message
-          .react("😐")
-          .then(() => message.react(message_status.adam === true ? "✅" : "❌"))
-      );
-  }
-
-  if (MESSAGE === ".dave") {
-    message_status.dave = !message_status.dave;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Dave Greeting: ${
-          message_status.dave === true ? "Enabled" : "Disabled"
-        }`
-      )
-      .then(() =>
-        message
-          .react("👴")
-          .then(() => message.react(message_status.dave === true ? "✅" : "❌"))
-      );
-  }
-
-  if (MESSAGE === ".ben") {
-    message_status.ben = !message_status.ben;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Ben Greeting: ${message_status.ben === true ? "Enabled" : "Disabled"}`
-      )
-      .then(() =>
-        message
-          .react("🐧")
-          .then(() => message.react(message_status.ben === true ? "✅" : "❌"))
-      );
-  }
-
-  if (MESSAGE === ".jack") {
-    message_status.jack = !message_status.jack;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Jack Greeting: ${
-          message_status.jack === true ? "Enabled" : "Disabled"
-        }`
-      )
-      .then(() =>
-        message
-          .react("💢")
-          .then(() => message.react(message_status.jack === true ? "✅" : "❌"))
-      );
-  }
-
-  if (MESSAGE === ".dan") {
-    message_status.dan = !message_status.dan;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Dan Greeting: ${message_status.dan === true ? "Enabled" : "Disabled"}`
-      )
-      .then(() =>
-        message
-          .react("👑")
-          .then(() => message.react(message_status.dan === true ? "✅" : "❌"))
-      );
-  }
-
-  if (MESSAGE === ".sam") {
-    message_status.sam = !message_status.sam;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Sam Greeting: ${message_status.sam === true ? "Enabled" : "Disabled"}`
-      )
-      .then(() =>
-        message
-          .react("🤠")
-          .then(() => message.react(message_status.sam === true ? "✅" : "❌"))
-      );
-  }
-
-  if (MESSAGE === ".zach") {
-    message_status.zach = !message_status.zach;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Sam Greeting: ${message_status.zach === true ? "Enabled" : "Disabled"}`
-      )
-      .then(() =>
-        message
-          .react("🤠")
-          .then(() => message.react(message_status.zach === true ? "✅" : "❌"))
-      );
-  }
-
-  if (MESSAGE === ".niamh") {
-    message_status.niamh = !message_status.niamh;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Niamh Greeting: ${
-          message_status.niamh === true ? "Enabled" : "Disabled"
-        }`
-      )
-      .then(() =>
-        message
-          .react("🐛")
-          .then(() =>
-            message.react(message_status.niamh === true ? "✅" : "❌")
-          )
-      );
-  }
-
-  if (MESSAGE === ".kaelem") {
-    message_status.kaelem = !message_status.kaelem;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Kaelem Greeting: ${
-          message_status.kaelem === true ? "Enabled" : "Disabled"
-        }`
-      )
-      .then(() =>
-        message
-          .react("🚽")
-          .then(() =>
-            message.react(message_status.kaelem === true ? "✅" : "❌")
-          )
-      );
-  }
-
-  if (MESSAGE === ".john") {
-    message_status.john = !message_status.john;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `John Greeting: ${
-          message_status.john === true ? "Enabled" : "Disabled"
-        }`
-      )
-      .then(() =>
-        message
-          .react("😱")
-          .then(() => message.react(message_status.john === true ? "✅" : "❌"))
-      );
-  }
-
-  if (MESSAGE === ".luke") {
-    message_status.luke = !message_status.luke;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Luke Greeting: ${
-          message_status.luke === true ? "Enabled" : "Disabled"
-        }`
-      )
-      .then(() =>
-        message
-          .react("🍃")
-          .then(() => message.react(message_status.luke === true ? "✅" : "❌"))
-      );
-  }
-
-  if (MESSAGE === ".mv_jack") {
-    message_status.mv_jack = !message_status.mv_jack;
-
-    updateDocuments();
-
-    message
-      .reply(
-        `Jack Greeting: ${
-          message_status.mv_jack === true ? "Enabled" : "Disabled"
-        }`
-      )
-      .then(() =>
-        message
-          .react("😏")
-          .then(() =>
-            message.react(message_status.mv_jack === true ? "✅" : "❌")
-          )
+        message.react(message_status[MESSAGE] === true ? "✅" : "❌")
       );
   }
 });
 
 // Voice Connection
-// ADD PLAY AUDIO FUNCTION
+// ADD PLAY AUDIO FUNCTION AND USE BROADCASTER
 CLIENT.on("voiceStateUpdate", async (oldMember, newMember) => {
   if (oldMember.channelID === null || oldMember.channelID === undefined) {
     let currChannel = CLIENT.channels.cache.get(newMember.channelID);
