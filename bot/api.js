@@ -4,7 +4,7 @@ import CONFIG from "../config_variables.js";
 
 // Defining Required Variables
 const { MongoClient } = mongodb;
-const connection = new MongoClient.connect(CONFIG.MONGODB_URI, {
+const connection = new MongoClient(CONFIG.MONGODB_URI, {
   useUnifiedTopology: true,
 });
 
