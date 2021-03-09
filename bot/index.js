@@ -1,55 +1,36 @@
 // Imports
 import Discord from "discord.js";
-import mongodb from "mongodb";
 import path from "path";
-
 import CONFIG from "../config_variables.js";
 import API from "./api.js";
 
 // Defining Required Variables
-const { MongoClient } = mongodb;
 const CLIENT = new Discord.Client();
 const __dirname = path.join(path.resolve(), "./bot");
 let message_status = {};
 
 // API Functions
 const fetchDocuments = () =>
-  MongoClient.connect(
-    CONFIG.MONGODB_URI,
-    { useUnifiedTopology: true },
-    (err, client) => {
-      if (err === null) {
-        const db = client.db(CONFIG.DB_NAME);
+  API.findDocuments()
+    .then((res) => {
+      console.log("=== Documents Fetched ===");
+      message_status = res;
+    })
+    .catch((e) => {
+      console.log(`=== Error Below === `);
+      console.log(`=== ${e} === `);
+    });
 
-        API.findDocuments(db, (docs) => {
-          console.log("=== Documents Fetched ===");
-          message_status = docs;
-
-          client.close();
-        });
-      } else {
-        console.log("=== Error Connecting To Server ===");
-      }
-    }
-  );
-
-const updateDocuments = () =>
-  MongoClient.connect(
-    CONFIG.MONGODB_URI,
-    { useUnifiedTopology: true },
-    (err, client) => {
-      if (err === null) {
-        const db = client.db(CONFIG.DB_NAME);
-
-        API.updateDocument(db, message_status, () => {
-          console.log("=== Updated The Documents ===");
-          client.close();
-        });
-      } else {
-        console.log("=== Error Connecting To Server ===");
-      }
-    }
-  );
+const updateDocuments = () => {
+  API.updateDocuments(message_status)
+    .then(() => {
+      console.log("=== Updated The Documents ===");
+    })
+    .catch((e) => {
+      console.log(`=== Error Below === `);
+      console.log(`=== ${e} === `);
+    });
+};
 
 // On Server Ready
 CLIENT.on("ready", () => {
@@ -66,25 +47,6 @@ CLIENT.on("error", (error) => {
 // Toggle Join Message
 CLIENT.on("message", (message) => {
   let MESSAGE = message.content.toLowerCase();
-
-  // Other Commands
-  if (MESSAGE === ".help") {
-    message.reply(
-      `List Of Current Greetings To Enable/Disable: ${Object.keys(
-        message_status
-      )
-        .slice(1)
-        .map((item) => {
-          return `\n.${item}`;
-        })}`
-    );
-  }
-
-  if (MESSAGE === ".reload") {
-    message.reply(`Checking for updates...`).then(() => {
-      fetchDocuments();
-    });
-  }
 
   // Setting User Intro On Or Off
   if (
@@ -112,6 +74,25 @@ CLIENT.on("message", (message) => {
       .then(() =>
         message.react(message_status[MESSAGE] === true ? "✅" : "❌")
       );
+  }
+
+  // Other Commands
+  if (MESSAGE === ".help") {
+    message.reply(
+      `List Of Current Greetings To Enable/Disable: ${Object.keys(
+        message_status
+      )
+        .slice(1)
+        .map((item) => {
+          return `\n.${item}`;
+        })}`
+    );
+  }
+
+  if (MESSAGE === ".reload") {
+    message.reply(`Updating Document.`).then(() => {
+      fetchDocuments();
+    });
   }
 });
 
