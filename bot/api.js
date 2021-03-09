@@ -1,18 +1,32 @@
+// Imports
+import mongodb from "mongodb";
 import CONFIG from "../config_variables.js";
 
+// Defining Required Variables
+const { MongoClient } = mongodb;
+const connection = new MongoClient.connect(CONFIG.MONGODB_URI, {
+  useUnifiedTopology: true,
+});
+
+// Connects To Server
+connection.connect();
+
+// Exporting Server Interactions For Use In "index.js"
 export default {
-  findDocuments: (db, callback) => {
-    db.collection(CONFIG.DB_COLLECTION).findOne({}, (err, docs) => {
-      callback(docs);
-    });
+  findDocuments: async () => {
+    let data = await connection
+      .db(CONFIG.DB_NAME)
+      .collection(CONFIG.DB_COLLECTION)
+      .findOne({});
+
+    return data;
   },
-  updateDocument: (db, message_status, callback) => {
-    db.collection(CONFIG.DB_COLLECTION).updateOne(
-      {},
-      { $set: message_status },
-      (err, result) => {
-        callback(result);
-      }
-    );
+  updateDocuments: async (data) => {
+    await connection
+      .db(CONFIG.DB_NAME)
+      .collection(CONFIG.DB_COLLECTION)
+      .updateOne({}, { $set: data });
+
+    return { success: true };
   },
 };
