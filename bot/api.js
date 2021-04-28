@@ -13,19 +13,34 @@ connection.connect();
 
 // Exporting Server Interactions For Use In "index.js"
 export default {
-  findDocuments: async () => {
+  listBindings: async () => {
     let data = await connection
       .db(CONFIG.DB_NAME)
       .collection(CONFIG.DB_COLLECTION)
-      .findOne({});
-
-    return data;
+      .find();
+    return data.toArray();
   },
-  updateDocuments: async (data) => {
+  createBinding: async (data) => {
     await connection
       .db(CONFIG.DB_NAME)
       .collection(CONFIG.DB_COLLECTION)
-      .updateOne({}, { $set: data });
+      .insertOne(data);
+
+    return { success: true };
+  },
+  updateBinding: async (id, data) => {
+    await connection
+      .db(CONFIG.DB_NAME)
+      .collection(CONFIG.DB_COLLECTION)
+      .findOneAndUpdate({ user_id: id }, { $set: { enabled: data } });
+
+    return { success: true };
+  },
+  removeBinding: async (id) => {
+    await connection
+      .db(CONFIG.DB_NAME)
+      .collection(CONFIG.DB_COLLECTION)
+      .deleteOne({ user_id: id });
 
     return { success: true };
   },
