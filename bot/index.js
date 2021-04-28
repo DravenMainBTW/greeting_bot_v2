@@ -68,8 +68,19 @@ const handlePlayAudio = async (current_channel, user_id) => {
   let bound_user = bound_users.find((item) => item.user_id === user_id);
   if (bound_user) {
     await current_channel.join().then((connection) => {
+      let alt_audio =
+        bound_user.audio_clip_name_2 === undefined
+          ? false
+          : Math.random() < bound_user.chance_of_occurrence;
       connection
-        .play(path.join(__dirname, `./media/${bound_user.audio_clip_name}`))
+        .play(
+          path.join(
+            __dirname,
+            alt_audio === false
+              ? `./media/${bound_user.audio_clip_name}`
+              : `./media/${bound_user.audio_clip_name_2}`
+          )
+        )
         .on("finish", () => {
           current_channel.leave();
         });
@@ -209,7 +220,6 @@ CLIENT.on("message", (message) => {
 });
 
 // Voice Connection
-// ADD PLAY AUDIO FUNCTION
 CLIENT.on("voiceStateUpdate", async (oldMember, newMember) => {
   if (oldMember.channelID === null || oldMember.channelID === undefined) {
     handlePlayAudio(
