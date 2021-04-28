@@ -8,13 +8,18 @@ import API from "./api.js";
 const CLIENT = new Discord.Client();
 const __dirname = path.join(path.resolve(), "./bot");
 let bound_users = [];
+// CHANGE: externally manage this instead of hardcode
+let accepted_admins = [
+  "184787999710511106",
+  "187348277870592010",
+  "159294623213289473",
+];
 
 // API Functions
 const listBindings = () =>
   API.listBindings()
     .then((res) => {
       console.log("=== Documents Fetched ===");
-      console.log(res);
       bound_users = res;
     })
     .catch((e) => {
@@ -88,108 +93,118 @@ CLIENT.on("error", (error) => {
 CLIENT.on("message", (message) => {
   let MESSAGE = message.content.toLowerCase();
 
-  // Setting User Intro On Or Off
-  if (
-    bound_users.find((item) => `.${item.toggle_phrase}` === MESSAGE) !==
-    undefined
-  ) {
-    let data = bound_users.find((item) => `.${item.toggle_phrase}` === MESSAGE);
-
-    updateBinding(data.user_id, !data.enabled);
-
-    message
-      .reply(
-        `${
-          MESSAGE.slice(0, 1).toUpperCase() + MESSAGE.substring(1)
-        } Greeting: ${data.enabled !== true ? "Enabled" : "Disabled"}`
-      )
-      .then(() => message.react(data.enabled !== true ? "✅" : "❌"));
-  }
-
-  // Binding Commands
-  if (MESSAGE.substring(0, 5) === ".bind") {
-    let split_message = MESSAGE.split(/[ ,]+/);
-
+  if (MESSAGE.substring(0, 1) === ".") {
+    // Setting User Intro On Or Off
     if (
-      split_message.length < 4 ||
-      isNaN(split_message[1]) ||
-      (split_message.length > 4 &&
-        (isNaN(split_message[5]) || split_message.length < 5))
+      bound_users.find((item) => `.${item.toggle_phrase}` === MESSAGE) !==
+      undefined
     ) {
-      message.reply(
-        `Binding should be formatted as:\n\n".bind [user_id] [audio_clip_name] [toggle_phrase]"\n\nOptionally you can add:\n\n"[audio_clip_name_2] [chance_of_occurrence]"`
+      let data = bound_users.find(
+        (item) => `.${item.toggle_phrase}` === MESSAGE
       );
-    } else {
-      if (
-        bound_users.find((item) => item.user_id === split_message[1]) ===
-        undefined
-      ) {
-        let data = {
-          user_id: split_message[1],
-          audio_clip_name: split_message[2],
-          toggle_phrase: split_message[3],
-          enabled: true,
-        };
 
-        if (split_message.length > 4) {
-          data = {
-            ...data,
-            audio_clip_name_2: split_message[4],
-            chance_of_occurrence: split_message[5],
-          };
+      updateBinding(data.user_id, !data.enabled);
+
+      message
+        .reply(
+          `${
+            MESSAGE.slice(0, 1).toUpperCase() + MESSAGE.substring(1)
+          } Greeting: ${data.enabled !== true ? "Enabled" : "Disabled"}`
+        )
+        .then(() => message.react(data.enabled !== true ? "✅" : "❌"));
+    }
+
+    // Binding Commands
+    if (
+      accepted_admins.find((item) => item === message.author.id) !== undefined
+    ) {
+      if (MESSAGE.substring(0, 5) === ".bind") {
+        let split_message = MESSAGE.split(/[ ,]+/);
+
+        if (
+          split_message.length < 4 ||
+          isNaN(split_message[1]) ||
+          (split_message.length > 4 &&
+            (isNaN(split_message[5]) || split_message.length < 5))
+        ) {
+          message.reply(
+            `Binding should be formatted as:\n\n".bind [user_id] [audio_clip_name] [toggle_phrase]"\n\nOptionally you can add:\n\n"[audio_clip_name_2] [chance_of_occurrence]"`
+          );
+        } else {
+          if (
+            bound_users.find((item) => item.user_id === split_message[1]) ===
+            undefined
+          ) {
+            let data = {
+              user_id: split_message[1],
+              audio_clip_name: split_message[2],
+              toggle_phrase: split_message[3],
+              enabled: true,
+            };
+
+            if (split_message.length > 4) {
+              data = {
+                ...data,
+                audio_clip_name_2: split_message[4],
+                chance_of_occurrence: split_message[5],
+              };
+            }
+
+            createBinding(data);
+            message.reply(`User has been bound.`);
+          } else {
+            message.reply(
+              `User ID has already been bound to a voice clip. To reassign please first use:\n\n".unbind [user_id]"`
+            );
+          }
         }
+      }
 
-        createBinding(data);
-        message.reply(`User has been bound.`);
-      } else {
+      if (MESSAGE.substring(0, 7) === ".unbind") {
+        let split_message = MESSAGE.split(/[ ,]+/);
+
+        if (split_message.length <= 1 || isNaN(split_message[1])) {
+          message.reply(
+            `Unbinding should be formatted as:\n\n".unbind [user_id]"`
+          );
+        } else {
+          if (
+            bound_users.find((item) => item.user_id === split_message[1]) !==
+            undefined
+          ) {
+            removeBinding(split_message[1]);
+            message.reply(`User has been unbound.`);
+          } else {
+            message.reply(
+              `User ID is not in use and therefore cannot be unassigned."`
+            );
+          }
+        }
+      }
+
+      // Other Commands
+      if (MESSAGE === ".help") {
         message.reply(
-          `User ID has already been bound to a voice clip. To reassign please first use:\n\n".unbind [user_id]"`
+          `List Of Current Greetings To Enable/Disable: ${bound_users.map(
+            (item) => {
+              return `\n User ID: ${item.user_id}, Audio Clip Name: ${
+                item.audio_clip_name
+              } ${
+                item.audio_clip_name_2 !== undefined
+                  ? `, Second Audio Clip Name: ${item.audio_clip_name_2}, Chance: ${item.chance_of_occurrence}`
+                  : ""
+              }`;
+            }
+          )}`
         );
       }
-    }
-  }
 
-  if (MESSAGE.substring(0, 7) === ".unbind") {
-    let split_message = MESSAGE.split(/[ ,]+/);
-
-    if (split_message.length <= 1 || isNaN(split_message[1])) {
-      message.reply(`Unbinding should be formatted as:\n\n".unbind [user_id]"`);
-    } else {
-      if (
-        bound_users.find((item) => item.user_id === split_message[1]) !==
-        undefined
-      ) {
-        removeBinding(split_message[1]);
-        message.reply(`User has been unbound.`);
-      } else {
-        message.reply(
-          `User ID is not in use and therefore cannot be unassigned."`
-        );
+      if (MESSAGE === ".reload") {
+        message.reply(`Updating Bindings...`).then(() => {
+          listBindings();
+        });
       }
     }
-  }
-
-  // Other Commands
-  if (MESSAGE === ".help") {
-    message.reply(
-      `List Of Current Greetings To Enable/Disable: ${bound_users.map(
-        (item) => {
-          return `\n User ID: ${item.user_id}, Audio Clip Name: ${
-            item.audio_clip_name
-          } ${
-            item.audio_clip_name_2 !== undefined
-              ? `, Second Audio Clip Name: ${item.audio_clip_name_2}, Chance: ${item.chance_of_occurrence}`
-              : ""
-          }`;
-        }
-      )}`
-    );
-  }
-
-  if (MESSAGE === ".reload") {
-    message.reply(`Updating Bindings...`).then(() => {
-      listBindings();
-    });
   }
 });
 
