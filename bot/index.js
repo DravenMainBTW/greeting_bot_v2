@@ -66,7 +66,7 @@ const removeBinding = (id) =>
 const handlePlayAudio = async (current_channel, user_id) => {
   // add in the 2nd audio assign option
   let bound_user = bound_users.find((item) => item.user_id === user_id);
-  if (bound_user) {
+  if (bound_user && bound_user.enabled === true) {
     await current_channel.join().then((connection) => {
       let alt_audio =
         bound_user.audio_clip_name_2 === undefined
